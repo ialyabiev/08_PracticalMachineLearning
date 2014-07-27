@@ -250,8 +250,13 @@ solvePC70 &lt;- predict(preProc70,dt.test[,1:52])
 <p>Last step is check our model on the test set, then predict 
 values for dataset dt.test</p>
 
-<pre><code class="r">confusionMatrix(testing$classe,predict(modFit70,testPC70))
-pred70 &lt;- predict(modFit,solvePC)
+<pre><code class="r">cm &lt;- confusionMatrix(dt.train.test$classe,predict(modFit70,testPC70))
+pred70 &lt;- predict(modFit70,solvePC70)
+</code></pre>
+
+<h4>Acuracy for builded model is: 0.95</h4>
+
+<pre><code class="r">cm$overall
 </code></pre>
 
 <h2>Out of sample error estimate</h2>

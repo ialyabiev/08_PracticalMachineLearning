@@ -80,9 +80,16 @@ Last step is check our model on the test set, then predict
 values for dataset dt.test
 
 ```{r cache=TRUE, eval=FALSE}
-confusionMatrix(testing$classe,predict(modFit70,testPC70))
-pred70 <- predict(modFit,solvePC)
+cm <- confusionMatrix(dt.train.test$classe,predict(modFit70,testPC70))
+pred70 <- predict(modFit70,solvePC70)
 ```
+
+
+#### Acuracy for builded model is: 0.95
+```{r eval=FALSE}
+cm$overall
+```
+
 
 ## Out of sample error estimate
 
