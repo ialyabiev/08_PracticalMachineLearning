@@ -1,0 +1,98 @@
+# Practical Machine Learning. Course Project.
+## Load and prepare data
+
+Load data from the files using read.csv function
+Also we use parameter na.string to mark empty values as NA.
+It helps us to remove NA and empty string together.
+
+```{r cache=TRUE, eval=FALSE}
+library(caret)
+library(randomForest)
+file.train = "pml-training.csv"
+file.test =  "pml-testing.csv"
+dt.train <- read.csv(file.train, header = TRUE, na.strings = c("NA",""))
+dt.test <-  read.csv(file.test, header = TRUE, na.strings = c("NA",""))
+```
+
+
+Eliminating all columnts with "NA" 
+
+```{r cache=TRUE, eval=FALSE}
+ncols <-  which(complete.cases(t(dt.train)>0))
+dt.train <-   dt.train[,ncols]
+dt.test <-   dt.test[,ncols]
+```
+
+
+We have 60 variables at the moment. Check them:
+```{r cache=TRUE, eval=FALSE}
+str(dt.train)
+```
+
+We want to reduce dimensionality of our dataset. We will use PCA for this purpose.
+
+First, we need all variables to be numerical for PCA.
+Remove factors:
+
+```{r cache=TRUE, eval=FALSE}
+n.rm=1:7
+dt.train <-   dt.train[,-n.rm]
+dt.test <-   dt.test[,-n.rm]
+```
+
+Split out train set to train and test set. We will use 80% data for training and
+other 20% for testing.
+
+```{r cache=TRUE, eval=FALSE}
+inTrain = createDataPartition(dt.train$classe, p = 0.8,list=FALSE)
+dt.train.train = dt.train[ inTrain,]
+dt.train.test  = dt.train[-inTrain,]
+```
+
+## PCA. Reduce dimensionality
+
+Find PCA vectors whcih explain 70% variability. We will get only 10 vectors.
+So,we reduced the number of  dimesions from 60 to 10.
+
+```{r cache=TRUE, eval=FALSE}
+preProc70 <- preProcess(dt.train[,1:52],method="pca",thresh=0.70)
+```
+
+
+After that we convert datasets into pca-based space
+
+```{r cache=TRUE, eval=FALSE}
+trainPC70 <- predict(preProc70,dt.train.train[,1:52])
+testPC70 <- predict(preProc70,dt.train.test[,1:52])
+solvePC70 <- predict(preProc70,dt.test[,1:52])
+```
+
+
+## Modeling with Random Forest
+
+Now we are ready to train model with random forest
+
+```{r cache=TRUE, eval=FALSE}
+modFit70 <- randomForest(dt.train.train$classe ~ ., data=trainPC70, importance=TRUE,proximity=TRUE)
+```
+
+Last step is check our model on the test set, then predict 
+values for dataset dt.test
+
+```{r cache=TRUE, eval=FALSE}
+confusionMatrix(testing$classe,predict(modFit70,testPC70))
+pred70 <- predict(modFit,solvePC)
+```
+
+## Out of sample error estimate
+
+In random forests, there is no need for cross-validation or a separate test set
+to get an unbiased estimate of the test set error. It is estimated internally ,
+during the run.
+Prediction model modFit returns the 
+#### out-of-bag prediction of  error rate: 4.76%
+
+```{r cache=TRUE, eval=FALSE}
+modFit70
+```
+
